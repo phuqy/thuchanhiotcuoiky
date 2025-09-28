@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Monitor - Lab Room Dashboard</title>
+    <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: #1a202c;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        h1 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-connected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-disconnected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .status-online {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card h3 {
+            color: #1a202c;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sensor-card::before {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .device-card::before {
+            background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .system-card::before {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .metric:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            transform: translateX(4px);
+        }
+        
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #4b5563;
+            font-size: 0.95em;
+        }
+        
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .device-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .device-on {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .device-off {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+        
+        .timestamp {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            color: #6b7280;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+        
+        .icon {
+            font-size: 1.4em;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .value-animation {
+            animation: valueUpdate 0.5s ease-in-out;
+        }
+        
+        @keyframes valueUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #667eea; }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .status-item {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 25px 20px;
+            }
+            
+            .card h3 {
+                font-size: 1.3em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .metric {
+                padding: 12px 16px;
+            }
+            
+            .metric-value {
+                font-size: 1.1em;
+            }
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #95a5a6;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 IoT Lab Monitor</h1>
+            <div class="status-bar">
+                <div id="brokerStatus" class="status-item status-disconnected">
+                    🔌 Broker: Disconnected
+                </div>
+                <div id="deviceStatus" class="status-item status-offline">
+                    📱 Device: Offline
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- Sensor Data Card -->
+            <div class="card sensor-card">
+                <h3><span class="icon">🌡️</span> Sensor Data</h3>
+                <div class="metric">
+                    <span class="metric-label">Temperature</span>
+                    <span id="temperature" class="metric-value">--°C</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Humidity</span>
+                    <span id="humidity" class="metric-value">--%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Light Level</span>
+                    <span id="lux" class="metric-value">-- lux</span>
+                </div>
+            </div>
+
+            <!-- Device Control Card -->
+            <div class="card device-card">
+                <h3><span class="icon">🎛️</span> Device Status</h3>
+                <div class="metric">
+                    <span class="metric-label">Light</span>
+                    <span id="lightStatus" class="device-status device-off">OFF</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Fan</span>
+                    <span id="fanStatus" class="device-status device-off">OFF</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">WiFi Signal</span>
+                    <span id="rssi" class="metric-value">-- dBm</span>
+                </div>
+            </div>
+
+            <!-- System Info Card -->
+            <div class="card system-card">
+                <h3><span class="icon">⚙️</span> System Info</h3>
+                <div class="metric">
+                    <span class="metric-label">Firmware</span>
+                    <span id="firmware" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Device Online</span>
+                    <span id="onlineStatus" class="device-status device-off">OFFLINE</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Update</span>
+                    <span id="lastUpdate" class="metric-value">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp">
+            <small>Real-time monitoring via MQTT WebSocket</small>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - modify these values as needed
+        const CONFIG = {
+            MQTT_HOST_WS: 'wss://broker.hivemq.com:8884/mqtt',
+            MQTT_USERNAME: '',
+            MQTT_PASSWORD: '',
+            TOPIC_NS: 'demo/room1',
+            RECONNECT_PERIOD: 5000
+        };
+
+        // Global variables
+        let mqttClient = null;
+        let reconnectTimer = null;
+        let deviceOnline = false;
+
+        // Topics
+        const topics = {
+            sensor: `${CONFIG.TOPIC_NS}/sensor/state`,
+            device: `${CONFIG.TOPIC_NS}/device/state`,
+            online: `${CONFIG.TOPIC_NS}/sys/online`
+        };
+
+        // DOM elements
+        const elements = {
+            brokerStatus: document.getElementById('brokerStatus'),
+            deviceStatus: document.getElementById('deviceStatus'),
+            temperature: document.getElementById('temperature'),
+            humidity: document.getElementById('humidity'),
+            lux: document.getElementById('lux'),
+            lightStatus: document.getElementById('lightStatus'),
+            fanStatus: document.getElementById('fanStatus'),
+            rssi: document.getElementById('rssi'),
+            firmware: document.getElementById('firmware'),
+            onlineStatus: document.getElementById('onlineStatus'),
+            lastUpdate: document.getElementById('lastUpdate')
+        };
+
+        // Update status displays
+        function updateBrokerStatus(connected) {
+            elements.brokerStatus.textContent = connected ? '🔌 Broker: Connected' : '🔌 Broker: Disconnected';
+            elements.brokerStatus.className = `status-item ${connected ? 'status-connected' : 'status-disconnected'}`;
+        }
+
+        function updateDeviceStatus(online) {
+            deviceOnline = online;
+            elements.deviceStatus.textContent = online ? '📱 Device: Online' : '📱 Device: Offline';
+            elements.deviceStatus.className = `status-item ${online ? 'status-online' : 'status-offline'}`;
+            
+            elements.onlineStatus.textContent = online ? 'ONLINE' : 'OFFLINE';
+            elements.onlineStatus.className = `device-status ${online ? 'device-on' : 'device-off'}`;
+        }
+
+        function updateDeviceControl(status, value) {
+            const element = elements[status + 'Status'];
+            if (element) {
+                const isOn = value === 'on';
+                element.textContent = isOn ? 'ON' : 'OFF';
+                element.className = `device-status ${isOn ? 'device-on' : 'device-off'}`;
+            }
+        }
+
+        function updateLastUpdate() {
+            const now = new Date();
+            elements.lastUpdate.textContent = now.toLocaleTimeString();
+        }
+
+        // MQTT message handlers
+        function handleSensorData(message) {
+            try {
+                const data = JSON.parse(message);
+                
+                if (data.temp_c !== undefined) {
+                    elements.temperature.textContent = `${data.temp_c.toFixed(1)}°C`;
+                }
+                if (data.hum_pct !== undefined) {
+                    elements.humidity.textContent = `${data.hum_pct.toFixed(1)}%`;
+                }
+                if (data.lux !== undefined) {
+                    elements.lux.textContent = `${data.lux} lux`;
+                }
+                
+                updateLastUpdate();
+            } catch (error) {
+                console.error('Error parsing sensor data:', error);
+            }
+        }
+
+        function handleDeviceState(message) {
+            try {
+                const data = JSON.parse(message);
+                
+                if (data.light !== undefined) {
+                    updateDeviceControl('light', data.light);
+                }
+                if (data.fan !== undefined) {
+                    updateDeviceControl('fan', data.fan);
+                }
+                if (data.rssi !== undefined) {
+                    elements.rssi.textContent = `${data.rssi} dBm`;
+                }
+                if (data.fw !== undefined) {
+                    elements.firmware.textContent = data.fw;
+                }
+                
+                updateLastUpdate();
+            } catch (error) {
+                console.error('Error parsing device state:', error);
+            }
+        }
+
+        function handleOnlineStatus(message) {
+            try {
+                const data = JSON.parse(message);
+                updateDeviceStatus(data.online === true);
+            } catch (error) {
+                console.error('Error parsing online status:', error);
+            }
+        }
+
+        // MQTT connection and event handlers
+        function connectMQTT() {
+            console.log('Connecting to MQTT broker...');
+            updateBrokerStatus(false);
+            
+            const clientId = `web_client_${Math.random().toString(16).substr(2, 8)}`;
+            
+            mqttClient = mqtt.connect(CONFIG.MQTT_HOST_WS, {
+                clientId: clientId,
+                username: CONFIG.MQTT_USERNAME,
+                password: CONFIG.MQTT_PASSWORD,
+                keepalive: 30,
+                connectTimeout: 5000,
+                reconnectPeriod: 0 // Manual reconnect
+            });
+
+            mqttClient.on('connect', function() {
+                console.log('Connected to MQTT broker');
+                updateBrokerStatus(true);
+                
+                // Subscribe to all topics
+                mqttClient.subscribe(topics.sensor, { qos: 0 });
+                mqttClient.subscribe(topics.device, { qos: 1 });
+                mqttClient.subscribe(topics.online, { qos: 1 });
+                
+                console.log('Subscribed to topics:', topics);
+                
+                // Clear reconnect timer
+                if (reconnectTimer) {
+                    clearTimeout(reconnectTimer);
+                    reconnectTimer = null;
+                }
+            });
+
+            mqttClient.on('message', function(topic, message) {
+                const messageStr = message.toString();
+                console.log(`Received [${topic}]: ${messageStr}`);
+                
+                switch (topic) {
+                    case topics.sensor:
+                        handleSensorData(messageStr);
+                        break;
+                    case topics.device:
+                        handleDeviceState(messageStr);
+                        break;
+                    case topics.online:
+                        handleOnlineStatus(messageStr);
+                        break;
+                    default:
+                        console.log('Unknown topic:', topic);
+                }
+            });
+
+            mqttClient.on('error', function(error) {
+                console.error('MQTT connection error:', error);
+                updateBrokerStatus(false);
+                scheduleReconnect();
+            });
+
+            mqttClient.on('close', function() {
+                console.log('MQTT connection closed');
+                updateBrokerStatus(false);
+                updateDeviceStatus(false);
+                scheduleReconnect();
+            });
+
+            mqttClient.on('offline', function() {
+                console.log('MQTT client offline');
+                updateBrokerStatus(false);
+                scheduleReconnect();
+            });
+        }
+
+        function scheduleReconnect() {
+            if (reconnectTimer) return; // Already scheduled
+            
+            console.log(`Scheduling reconnect in ${CONFIG.RECONNECT_PERIOD / 1000} seconds...`);
+            reconnectTimer = setTimeout(() => {
+                reconnectTimer = null;
+                if (mqttClient) {
+                    mqttClient.end(true);
+                }
+                connectMQTT();
+            }, CONFIG.RECONNECT_PERIOD);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            console.log('IoT Monitor Web App starting...');
+            console.log('Config:', CONFIG);
+            connectMQTT();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (mqttClient) {
+                mqttClient.end(true);
+            }
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+            }
+        });
+    </script>
+</body>
+</html>

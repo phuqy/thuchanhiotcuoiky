@@ -1,0 +1,86 @@
+MIT License
+
+Copyright (c) 2025 Nguyễn Trung Kiệt - Thủ Dầu Một University (TDMU)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-Party Libraries
+
+This project uses the following open-source libraries:
+
+### JavaScript Libraries
+- **MQTT.js** (MIT License) - MQTT client library for JavaScript
+- **Chart.js** (MIT License) - For data visualization (if used)
+
+### Python Libraries  
+- **paho-mqtt** (Eclipse Public License 1.0) - Python MQTT client
+- **requests** (Apache 2.0) - HTTP library for Python
+
+### Arduino Libraries
+- **PubSubClient** (MIT License) - MQTT library for Arduino/ESP32
+- **DHT sensor library** (MIT License) - Adafruit DHT sensor library
+- **BH1750** (MIT License) - BH1750 light sensor library
+- **ArduinoJson** (MIT License) - JSON library for Arduino
+
+### Flutter Packages
+- **flutter** (BSD 3-Clause) - Google's UI toolkit
+- **material** (BSD 3-Clause) - Material Design components
+
+### Assets & Resources
+- **Material Icons** (Apache 2.0) - Material Design icons
+- **Cupertino Icons** (MIT License) - iOS-style icons
+
+---
+
+## Acknowledgments
+
+Special thanks to:
+- **HiveMQ** for providing free public MQTT broker
+- **Espressif Systems** for ESP32-S3 development platform  
+- **Google** for Flutter framework
+- **Eclipse Foundation** for Mosquitto MQTT broker
+- **Arduino Community** for extensive library ecosystem
+- **Thủ Dầu Một University (TDMU)** for educational support and resources
+- **Open Source Contributors** who made this project possible
+
+**Author:** Nguyễn Trung Kiệt  
+**Institution:** Thủ Dầu Một University (TDMU)  
+**Project:** IoT Demo System for Educational and Research Purposes  
+**Year:** 2025
+
+---
+
+## Disclaimer
+
+This software is provided for educational and demonstration purposes only. 
+When working with hardware components and electrical connections:
+
+- Always follow proper safety procedures
+- Verify all connections before powering on
+- Use appropriate protective equipment
+- Consult qualified professionals for complex installations
+- The authors assume no responsibility for any damages or injuries
+
+For production use, ensure proper security measures are implemented including:
+- TLS/SSL encryption for MQTT communications
+- Strong authentication mechanisms  
+- Network security configurations
+- Regular security updates and monitoring
