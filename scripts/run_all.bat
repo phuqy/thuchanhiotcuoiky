@@ -9,7 +9,7 @@ echo.
 
 REM Start ESP32 Simulator in background
 echo 📡 Starting ESP32 Device Simulator...
-start "ESP32 Simulator" cmd /k "cd /d D:\SourceCode\chapter4_3_1 && D:\SourceCode\chapter4_3_1\.venv\Scripts\python.exe esp32_simulator.py"
+start "ESP32 Simulator" cmd /k "cd /d D:\SourceCode\chapter4_3_1 && D:\SourceCode\chapter4_3_1\.venv\Scripts\python.exe simulators\esp32_simulator.py"
 
 REM Wait 2 seconds
 timeout /t 2 /nobreak >nul

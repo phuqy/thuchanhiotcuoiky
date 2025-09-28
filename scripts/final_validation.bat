@@ -7,7 +7,7 @@ echo.
 echo 📁 Checking project structure...
 if exist "web\src\index.html" (echo ✅ Web Dashboard: FOUND) else (echo ❌ Web Dashboard: MISSING)
 if exist "app_flutter\lib\main.dart" (echo ✅ Flutter App: FOUND) else (echo ❌ Flutter App: MISSING)
-if exist "esp32_simulator.py" (echo ✅ ESP32 Simulator: FOUND) else (echo ❌ ESP32 Simulator: MISSING)
+if exist "simulators\esp32_simulator.py" (echo ✅ ESP32 Simulator: FOUND) else (echo ❌ ESP32 Simulator: MISSING)
 if exist "firmware_esp32s3\src\main.cpp" (echo ✅ ESP32 Firmware: FOUND) else (echo ❌ ESP32 Firmware: MISSING)
 
 echo.
