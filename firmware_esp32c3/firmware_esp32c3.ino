@@ -19,8 +19,8 @@
 // =============================================================================
 
 // WiFi Configuration
-const char* WIFI_SSID = "Hoi Coffee 1"; // <<-- THAY TÊN WIFI CỦA BẠN
-const char* WIFI_PASSWORD = "12356789"; // <<-- THAY MẬT KHẨU WIFI
+const char* WIFI_SSID = "TDMU"; // <<-- THAY TÊN WIFI CỦA BẠN
+const char* WIFI_PASSWORD = ""; // <<-- THAY MẬT KHẨU WIFI
 
 // MQTT Broker Configuration
 const char* MQTT_HOST = "broker.hivemq.com";

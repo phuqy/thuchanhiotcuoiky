@@ -27,7 +27,7 @@ DB_HOST = "localhost"
 DB_PORT = "5432" # Mặc định của PostgreSQL
 DB_NAME = "iot_data" # Tên database bạn vừa tạo
 DB_USER = "postgres" # Tên user của bạn (thường là 'postgres')
-DB_PASSWORD = "123123" # <<-- THAY MẬT KHẨU POSTGRESQL CỦA BẠN
+DB_PASSWORD = "1" # <<-- THAY MẬT KHẨU POSTGRESQL CỦA BẠN
 
 # =============================================================================
 
