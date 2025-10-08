@@ -356,13 +356,18 @@
             <!-- Device Control Card -->
             <div class="card device-card">
                 <h3><span class="icon">🎛️</span> Device Status</h3>
-                <div class="metric">
+                <div id="light-control" class="metric">
                     <span class="metric-label">Light</span>
                     <span id="lightStatus" class="device-status device-off">OFF</span>
+                    <style>
+                        #light-control { cursor: pointer; }
+                    </style>
                 </div>
-                <div class="metric">
+                <div id="fan-control" class="metric">
                     <span class="metric-label">Fan</span>
                     <span id="fanStatus" class="device-status device-off">OFF</span>
+                    <!-- Thêm style để có con trỏ chuột -->
+                    <style>#fan-control { cursor: pointer; }</style>
                 </div>
                 <div class="metric">
                     <span class="metric-label">WiFi Signal</span>
@@ -399,7 +404,7 @@
             MQTT_HOST_WS: 'wss://broker.hivemq.com:8884/mqtt',
             MQTT_USERNAME: '',
             MQTT_PASSWORD: '',
-            TOPIC_NS: 'demo/room1',
+            TOPIC_NS: 'lab/test_esp32',
             RECONNECT_PERIOD: 5000
         };
 
@@ -412,7 +417,8 @@
         const topics = {
             sensor: `${CONFIG.TOPIC_NS}/sensor/state`,
             device: `${CONFIG.TOPIC_NS}/device/state`,
-            online: `${CONFIG.TOPIC_NS}/sys/online`
+            online: `${CONFIG.TOPIC_NS}/sys/online`,
+            command: `${CONFIG.TOPIC_NS}/device/cmd` 
         };
 
         // DOM elements
@@ -614,6 +620,25 @@
                 clearTimeout(reconnectTimer);
             }
         });
+            // Lắng nghe sự kiện click cho nút điều khiển đèn
+            const lightControlButton = document.getElementById('light-control');
+            if (lightControlButton) {
+                lightControlButton.addEventListener('click', () => {
+                    console.log('Light control clicked!');
+                    const payload = { light: 'toggle' };
+                    mqttClient.publish(topics.command, JSON.stringify(payload));
+                });
+            }
+
+            // Lắng nghe sự kiện click cho nút điều khiển quạt
+            const fanControlButton = document.getElementById('fan-control');
+            if (fanControlButton) {
+                fanControlButton.addEventListener('click', () => {
+                    console.log('Fan control clicked!');
+                    const payload = { fan: 'toggle' };
+                    mqttClient.publish(topics.command, JSON.stringify(payload)); 
+                });
+            }
     </script>
 </body>
 </html>

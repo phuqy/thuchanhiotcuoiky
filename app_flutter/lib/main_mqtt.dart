@@ -477,7 +477,7 @@ class MqttController extends ChangeNotifier {
   static const int mqttPort = 1883;
   static const String mqttUsername = ''; // No auth needed for public broker
   static const String mqttPassword = '';
-  static const String topicNamespace = 'demo/room1'; // Match other components
+  static const String topicNamespace = 'lab/test_esp32'; // Match other components
 
   // MQTT Client
   late MqttServerClient _client;

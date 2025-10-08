@@ -68,7 +68,7 @@ class _IoTControllerPageState extends State<IoTControllerPage> {
   void _connectMQTT() {
     // MQTT configuration matching ESP32 simulator
     const broker = 'wss://broker.hivemq.com:8884/mqtt';
-    const topicNamespace = 'demo/room1';
+    const topicNamespace = 'lab/test_esp32';
     
     // Create MQTT client using JavaScript
     js.context.callMethod('eval', ['''
